@@ -1,0 +1,28 @@
+---
+sudo: required
+env:
+  - base_image: quay.io/5003/centos-ansible-ci
+    roles_path: /etc/ansible/roles/ci_test/
+services: docker
+script:
+  - container_id=$(mktemp)
+  - >
+     sudo docker run --detach --privileged
+     --volume="${PWD}":${roles_path}:ro
+     --volume=/sys/fs/cgroup/:/sys/fs/cgroup/:ro
+     ${base_image} > "${container_id}"
+  - >
+     sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm
+     ansible-playbook ${roles_path}tests/test.yml --syntax-check
+  - >
+     sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm
+     ansible-playbook ${roles_path}tests/test.yml
+  - >
+     sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm
+     ansible-playbook ${roles_path}tests/test.yml
+  - >
+     sudo docker exec "$(cat ${container_id})" ansible-playbook ${roles_path}tests/test.yml
+     | grep --quiet 'unreachable=0.*failed=0'
+     && (echo 'Task idempotent state: PASSED' && exit 0)
+     || (echo 'Task idempotent state: FAILED' && exit 1)
+  - 'sudo docker stop "$(cat ${container_id})"'
