@@ -1,0 +1,5 @@
+---
+elixir_lang:
+  version: HEAD
+  dest:
+    root: /usr/local/src/elixir/

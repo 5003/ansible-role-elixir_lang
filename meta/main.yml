@@ -1,0 +1,12 @@
+---
+galaxy_info:
+  author: Yas
+  description: "Elixir on Erlang VM"
+  company: Japan
+  license: "CC BY 4.0"
+  min_ansible_version: 1.9
+  platforms:
+  - name: EL
+    versions: [7]
+  galaxy_tags: [elixir, erlang]
+dependencies: []
