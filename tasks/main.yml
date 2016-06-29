@@ -14,15 +14,19 @@
     - openssl-devel
     - esl-erlang
 - name: verify elixir installation
-  command: iex --version
-  sudo: no
-  register: which_iex
-  ignore_errors: true
+  shell: elixir --version | grep $(echo "{{ elixir_lang.version }}" | tr -d v)
+  become: no
+  register: which_elixir
+  failed_when: which_elixir.rc not in [0, 1, 2]
+- name: cleanup source code directly
+  file: path={{ elixir_lang.build_dir }} state=absent
+  when: which_elixir.rc in [1, 2]
 - name: compilation (clone)
   git: >
         repo=https://github.com/elixir-lang/elixir.git
-        dest={{ elixir_lang.dest.root }} update=no
+        dest={{ elixir_lang.build_dir }} update=no
         version={{ elixir_lang.version }}
+  when: which_elixir.rc in [1, 2]
 - name: compilation (build started)
-  command: make clean install chdir={{ elixir_lang.dest.root }}
-  when: which_iex | failed
+  command: make clean install chdir={{ elixir_lang.build_dir }}
+  when: which_elixir.rc in [1, 2]
