@@ -1,7 +1,7 @@
 ---
 sudo: required
 env:
-  - base_image: quay.io/5003/centos-ansible-ci
+  - base_image: 5003/centos-ansible-ci:2.1.x
     roles_path: /etc/ansible/roles/ci_test/
 services: docker
 script:
